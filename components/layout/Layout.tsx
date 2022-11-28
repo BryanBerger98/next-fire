@@ -13,7 +13,6 @@ type LayoutProperties = {
 
 const Layout = ({ children = null }: LayoutProperties) => {
 
-    // const { data: session, status } = useSession();
     const { currentUser, loading } = useAuthContext();
     const { theme, toggleTheme } = useThemeContext();
     const [ showLayout, setShowLayout ] = useState<boolean>(true);
@@ -22,12 +21,6 @@ const Layout = ({ children = null }: LayoutProperties) => {
     const [ showSidebar, setShowSidebar ] = useState<boolean>(false);
     const [ isSidebarOpen, setIsSidebarOpen ] = useState<boolean>(false);
     const router = useRouter();
-
-    // useEffect(() => {
-    //     if (session) {
-    //         getCurrentUser();
-    //     }
-    // }, [ session ]);
 
     useEffect(() => {
         const pathArr = router.pathname.split('/');

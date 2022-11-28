@@ -5,9 +5,9 @@ import TablePageSelector from './TablePageSelector';
 type TableField = {
 	title: string;
 	name: string;
-	sortable: string;
-	fontStyle: string;
-	align: string;
+	sortable: boolean,
+	fontStyle: 'bold' | 'semibold' | 'medium' | 'light',
+	align: 'left' | 'right' | 'center',
 };
 
 type TableProperties = {
@@ -34,17 +34,28 @@ const Table = ({ dataLoading, dataCount, fields, defaultLimit, defaultSkip, defa
     const [ sort, setSort ] = useState<{ field: string; direction: 1 | -1 }>(defaultSort);
 
     const onChangeSort = (field: string, direction: 1 | -1) => {
-        const sort = { field, direction };
+        const sort = {
+            field,
+            direction,
+        };
         setSort(sort);
         onReloadTable(limit, skip, sort);
-        localStorage.setItem('usersTableConfig', JSON.stringify({ limit, skip, sort }));
+        localStorage.setItem('usersTableConfig', JSON.stringify({
+            limit,
+            skip,
+            sort,
+        }));
     };
 
     const onChangePagination = ({ limit, skip }: { limit: number, skip: number }) => {
         setLimit(limit);
         setSkip(skip);
         onReloadTable(limit, skip, sort);
-        localStorage.setItem('usersTableConfig', JSON.stringify({ limit, skip, sort }));
+        localStorage.setItem('usersTableConfig', JSON.stringify({
+            limit,
+            skip,
+            sort,
+        }));
     };
 
     return(

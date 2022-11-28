@@ -4,10 +4,10 @@ import { FiChevronRight } from 'react-icons/fi';
 import { DropdownVariant } from './DropdownMenu';
 
 type DropdownItemProperties = {
-	variant: DropdownVariant;
-	onClick: MouseEventHandler<HTMLButtonElement>;
-	icon: ReactNode;
-	name: string;
+	variant?: DropdownVariant;
+	onClick?: MouseEventHandler<HTMLButtonElement>;
+	icon?: ReactNode;
+	name?: string;
 }
 
 const defaultVariant: DropdownVariant = 'primary';
@@ -15,9 +15,7 @@ const defaultIcon = <FiChevronRight />;
 const defaultName = 'Button';
 const defaultOnClick: MouseEventHandler<HTMLButtonElement> = (e) => console.log(e);
 
-const DropdownItem = ({
-    variant = defaultVariant, onClick = defaultOnClick, icon = defaultIcon, name = defaultName,
-}: DropdownItemProperties) => {
+const DropdownItem = ({ variant = defaultVariant, onClick = defaultOnClick, icon = defaultIcon, name = defaultName }: DropdownItemProperties) => {
 
     const getIcon = (icon: ReactNode, active: boolean) => {
         const props = { className: `w-5 h-5 mr-2 ${ !active && `text-${ variant }-light-default dark:text-${ variant }-dark-default` }` };

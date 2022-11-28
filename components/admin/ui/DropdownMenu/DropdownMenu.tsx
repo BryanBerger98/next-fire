@@ -9,11 +9,11 @@ export type DropdownUIOptions = {
 };
 
 export type DropdownMenuProperties = {
-	children: ReactNode;
-	icon: ReactNode;
-	name: string;
-	variant: DropdownVariant;
-	uiOptions: DropdownUIOptions;
+	children?: ReactNode;
+	icon?: ReactNode;
+	name?: string;
+	variant?: DropdownVariant;
+	uiOptions?: DropdownUIOptions;
 };
 
 const defaultIcon = <FiMoreVertical />;

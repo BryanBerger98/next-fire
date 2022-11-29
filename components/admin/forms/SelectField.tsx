@@ -1,14 +1,14 @@
-import React, { useId } from 'react';
+import { useId } from 'react';
 import useFieldErrorMesssage from '../../../packages/hooks/useFieldErrorMessage';
-import { TextFieldProperties } from './types/field.type';
+import { SelectFieldProperties } from './types/field.type';
 
 const DEFAULT_LABEL_STYLE = {
-    className: 'text-gray-600 dark:text-gray-300 mb-1 ml-1',
+    className: 'text-light-600 dark:text-light-300 mb-1 ml-1',
     style: {},
 };
 
 const DEFAULT_INPUT_STYLE = {
-    className: 'p-2 rounded-md bg-gray-100 dark:bg-gray-700 shadow-inner dark:text-gray-50 focus:outline outline-primary-light-default dark:outline-primary-dark-default',
+    className: 'appearance-none p-2 rounded-md bg-light-100 dark:bg-light-700 shadow-inner',
     style: {},
 };
 
@@ -25,7 +25,7 @@ const defaultStyle = {
     },
 };
 
-const TextField = <TFormValues extends Record<string, unknown>>({ name, type, label, inputStyle = defaultStyle, labelStyle = defaultStyle, placeholder, required = defaultRequired, disabled = defaultDisabled, register, errors = undefined }: TextFieldProperties<TFormValues>) => {
+const SelectField = <TFormValues extends Record<string, unknown>>({ name, options = [], inputStyle = defaultStyle, label, labelStyle = defaultStyle, placeholder, required = defaultRequired, disabled = defaultDisabled, errors, register }: SelectFieldProperties<TFormValues>) => {
 
     const id = useId();
 
@@ -55,32 +55,39 @@ const TextField = <TFormValues extends Record<string, unknown>>({ name, type, la
     };
 
     return (
-        <div className='mb-3 flex flex-col text-sm'>
+        <div className='relative mb-3 flex flex-col text-sm'>
             { label &&
                 <label
                 	htmlFor={ `${ id }-${ name }` }
                 	className={ mergedLabelStyle.className }
                 	style={ mergedLabelStyle.style }
                 >
-                	{label}
-                	{required && <span className="text-red-500 dark:text-red-400"> *</span>}
+                	{ label }
+                	{ required && <span className="text-danger-light-default dark:text-danger-dark-default"> *</span> }
                 </label>
             }
-            <input
-                type={ type }
+            <select
                 id={ `${ id }-${ name }` }
-                placeholder={ `${ placeholder } ${ required && !label ? '*' : '' }` }
+                placeholder={ ` ${ placeholder } ${ required && !label ? '*' : '' }` }
                 className={ mergedInputStyle.className }
-                disabled={ disabled }
                 style={ mergedInputStyle.style }
                 { ...register(name, {
                     required,
                     disabled,
                 }) }
-            />
+            >
+                { options.map((op, index) => (
+                    <option
+                        key={ index }
+                        value={ op.value }
+                        disabled={ op.disabled }
+                        selected={ op.selected }
+                    >{ op.label }</option>
+                )) }
+            </select>
             <FieldErrorMessage />
         </div>
     );
 };
 
-export default TextField;
+export default SelectField;

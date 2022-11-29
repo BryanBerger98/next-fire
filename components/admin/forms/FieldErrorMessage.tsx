@@ -6,7 +6,7 @@ const DEFAULT_STYLE = {
     style: {},
 };
 
-type FieldErrorMessageProperties = {
+export type FieldErrorMessageProperties = {
 	message: string;
 	messageStyle?: {
 		className: string;

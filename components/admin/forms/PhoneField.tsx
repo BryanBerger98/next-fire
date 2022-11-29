@@ -1,8 +1,7 @@
-import { AsYouType, CountryCode, getCountries, PhoneNumber } from 'libphonenumber-js';
-import PropTypes from 'prop-types';
-import { CSSProperties, HTMLInputTypeAttribute, useId, useState } from 'react';
-import { DeepMap, FieldError, FieldValues, Path, UseFormRegister } from 'react-hook-form';
-import FieldErrorMessage from './FieldErrorMessage';
+import { AsYouType, CountryCode, getCountries } from 'libphonenumber-js';
+import { BaseSyntheticEvent, useId, useState } from 'react';
+import useFieldErrorMesssage from '../../../packages/hooks/useFieldErrorMessage';
+import { PhoneFieldProperties } from './types/field.type';
 
 const DEFAULT_LABEL_STYLE = {
     className: 'text-gray-600 dark:text-gray-300 mb-1 ml-1',
@@ -14,64 +13,51 @@ const DEFAULT_INPUT_STYLE = {
     style: {},
 };
 
-type PhoneFieldProperties<TFormValues> = {
-	name: Path<TFormValues>;
-	type: HTMLInputTypeAttribute;
-	label: string;
-	inputStyle?: {
-		className?: string;
-		style?: CSSProperties;
-	};
-	labelStyle?: {
-		className?: string;
-		style?: CSSProperties;
-	};
-	placeholder?: string;
-	required?: boolean;
-	disabled?: boolean;
-	errors?: DeepMap<TFormValues, FieldError>;
-	register: UseFormRegister<TFormValues & FieldValues>,
-	onChangePhoneNumber: (phoneNumber: PhoneNumber | undefined) => void;
-}
-
 const defaultRequired = false;
 const defaultDisabled = false;
-const defaultInputStyle = {
-    className: '',
-    style: {},
-};
-const defaultLabelStyle = {
-    className: '',
-    style: {},
+const defaultStyle = {
+    default: {
+        className: '',
+        style: {},
+    },
+    error: {
+        className: '',
+        style: {},
+    },
 };
 
-const PhoneField = <TFormValues extends Record<string, unknown>>({ name, label, inputStyle = defaultInputStyle, labelStyle = defaultLabelStyle, onChangePhoneNumber, placeholder, required = defaultRequired, disabled = defaultDisabled, errors, register }: PhoneFieldProperties<TFormValues>) => {
+const PhoneField = <TFormValues extends Record<string, unknown>>({ name, label, inputStyle = defaultStyle, labelStyle = defaultStyle, onChangePhoneNumber, placeholder, required = defaultRequired, disabled = defaultDisabled, errors, register }: PhoneFieldProperties<TFormValues>) => {
 
     const id = useId();
+
+    const { FieldErrorMessage, labelErrorStyle, inputErrorStyle } = useFieldErrorMesssage<TFormValues>({
+        errors,
+        name,
+        inputErrorStyle: inputStyle?.error ?? null,
+        labelErrorStyle: inputStyle?.error ?? null,
+    });
 
     const [ countrySelectValue, setCountrySelectValue ] = useState<CountryCode>('FR');
 
     const mergedInputStyle = {
-        className: `${ DEFAULT_INPUT_STYLE.className } ${ inputStyle.className }`,
+        className: `${ DEFAULT_INPUT_STYLE.className } ${ inputStyle?.default?.className ?? '' } ${ inputErrorStyle?.className ?? '' }`,
         style: {
             ...DEFAULT_INPUT_STYLE.style,
-            ...inputStyle.style,
+            ...inputStyle?.default?.style ?? {},
+            ...inputErrorStyle?.style ?? {},
         },
     };
 
     const mergedLabelStyle = {
-        className: `${ DEFAULT_LABEL_STYLE.className } ${ labelStyle.className }`,
+        className: `${ DEFAULT_LABEL_STYLE.className } ${ labelStyle?.default?.className ?? '' } ${ labelErrorStyle?.className ?? '' }`,
         style: {
             ...DEFAULT_LABEL_STYLE.style,
-            ...labelStyle.style,
+            ...labelStyle?.default?.style ?? {},
+            ...labelErrorStyle?.style ?? {},
         },
     };
 
-    if (errors && errors[ name ] ) {
-        mergedInputStyle.className = `${ mergedInputStyle.className } outline-1 outline-danger-light-default/50 dark:outline-danger-dark-default/50 border-danger-light-default dark:border-danger-dark-default`;
-    }
-
-    const handleChange = (event) => {
+    const handleChange = (event: BaseSyntheticEvent) => {
         const { value } = event.target;
 
         if (!value) {
@@ -101,16 +87,18 @@ const PhoneField = <TFormValues extends Record<string, unknown>>({ name, label, 
             <div className='flex w-full gap-0'>
                 <select
                     value={ countrySelectValue }
-                    onChange={ (event) => setCountrySelectValue(event.target.value) }
+                    onChange={ (event) => setCountrySelectValue(event.target.value as CountryCode) }
                     className='appearance-none p-2 px-3 rounded-none rounded-l-md shadow-inner bg-light-100 dark:bg-light-800'
                 >
                     {
-                        getCountries().map(countryCode => {
-                            return <option
+                        getCountries().map(countryCode => (
+                            <option
                                 key={ countryCode }
                                 value={ countryCode }
-                            >{ countryCode }</option>;
-                        })
+                            >
+                                { countryCode }
+                            </option>
+                        ))
                     }
                 </select>
                 <input
@@ -123,12 +111,11 @@ const PhoneField = <TFormValues extends Record<string, unknown>>({ name, label, 
                     { ...register(name, {
                         required,
                         disabled,
-                        value,
                         onChange: handleChange,
                     }) }
                 />
             </div>
-            { errors && errors[ name ] && <FieldErrorMessage message={ errors[ name ] } /> }
+            <FieldErrorMessage />
         </div>
     );
 };

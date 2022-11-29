@@ -1,21 +1,30 @@
 import { FiChevronLeft, FiUserPlus } from 'react-icons/fi';
-import EditUserForm from '../../../../components/users/EditUserForm';
 import { useEffect, useState } from 'react';
 import csrf from '../../../../utils/csrf';
-import { useCsrfContext } from '../../../../store/csrfContext';
 import { string } from 'prop-types';
-import { getSession } from 'next-auth/react';
-import { isUserAbleToWatch } from '../../../../utils/permissions';
-import Button from '../../../../components/ui/Button/Button';
+// import { isUserAbleToWatch } from '../../../../utils/permissions';
+import { GetServerSidePropsContextWithCsrf } from '../../../../types/ssr.types';
+import Button from '../../../../components/admin/ui/Button/Button';
+import { useCsrfContext } from '../../../../context/csrf.context';
+import EditUserForm from '../../../../components/admin/users/EditUserForm';
+import { User } from '../../../../services/users/types/user.type';
 
-const NewUserPage = ({ csrfToken }) => {
+type NewUserPage = {
+	csrfToken: string;
+}
 
-    const [ user, setUser ] = useState(null);
+const NewUserPage = ({ csrfToken }: NewUserPage) => {
+
+    const [ user, setUser ] = useState<User | null>(null);
     const { dispatchCsrfToken } = useCsrfContext();
 
     useEffect(() => {
         dispatchCsrfToken(csrfToken);
     }, [ dispatchCsrfToken, csrfToken ]);
+
+    const handleSubmit = (values) => {
+        console.log('Submitted', values);
+    };
 
     return(
         <div className="container mx-auto my-10 px-5">
@@ -34,6 +43,7 @@ const NewUserPage = ({ csrfToken }) => {
                     <EditUserForm
                         user={ user }
                         setUser={ setUser }
+                        onSubmit={ handleSubmit }
                     />
                 </div>
             </div>
@@ -47,18 +57,8 @@ NewUserPage.propTypes = { csrfToken: string };
 
 NewUserPage.defaultProps = { csrfToken: null };
 
-const getServerSideProps = async ({ req, res }) => {
-    const session = await getSession({ req });
+const getServerSideProps = async ({ req, res }: GetServerSidePropsContextWithCsrf ) => {
     await csrf(req, res);
-
-    if (!session || session && !isUserAbleToWatch(session.user.role, [ 'admin' ])) {
-        return {
-            redirect: {
-                destination: '/admin/dashboard',
-                permanent: false,
-            },
-        };
-    }
 
     return { props: { csrfToken: req.csrfToken() } };
 };

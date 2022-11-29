@@ -50,5 +50,5 @@ export type SelectFieldProperties<TFormValues> = FieldProperties<TFormValues> & 
 }
 
 export type PhoneFieldProperties<TFormValues> = FieldProperties<TFormValues> & {
-	onChangePhoneNumber: (phoneNumber: PhoneNumber | undefined) => void;
+	onChangePhoneNumber: (phoneNumber: PhoneNumber | null) => void;
 }

@@ -1,14 +1,12 @@
-import { Dispatch, SetStateAction, useCallback, useState } from 'react';
+import { useState } from 'react';
 import * as yup from 'yup';
 import { FiSave } from 'react-icons/fi';
-import { useRouter } from 'next/router';
 import ButtonWithLoader from '../ui/Button/ButtonWithLoader';
 import TextField from '../forms/TextField';
 import SelectField from '../forms/SelectField';
 import PhoneField from '../forms/PhoneField';
-import { format } from 'libphonenumber-js';
+import { PhoneNumber } from 'libphonenumber-js';
 import { User } from '../../../services/users/types/user.type';
-import useUsersClientService from '../../../services/users/users.client.service';
 import { DeepMap, FieldError, FieldValues, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -17,27 +15,25 @@ export type EditUserFormInputs = {
 	displayName: string;
 	phoneNumber: string;
 	role: string;
+	disabled: boolean;
+	emailVerified: boolean;
 } & FieldValues;
 
 type EditUserFormProperties = {
 	user?: User | null;
-	setUser: Dispatch<SetStateAction<User | null>>;
 	onSubmit: (values: EditUserFormInputs) => void;
+	saving: boolean;
+	errorCode: string | null;
 };
 
 const defaultUser = null;
 
-const EditUserForm = ({ user = defaultUser, setUser, onSubmit }: EditUserFormProperties) => {
+const EditUserForm = ({ user = defaultUser, onSubmit, saving, errorCode }: EditUserFormProperties) => {
 
-    const router = useRouter();
-    const { createUser } = useUsersClientService();
-
-    const [ saving, setSaving ] = useState(false);
-    const [ errorCode, setErrorCode ] = useState(null);
-    const [ phoneNumberValues, setPhoneNumberValues ] = useState({});
+    const [ phoneNumberValues, setPhoneNumberValues ] = useState<PhoneNumber | null>(null);
 
     const userFormSchema = yup.object({
-        displayName: yup.string(),
+        displayName: yup.string().required('Ce champs est requis.'),
         email: yup.string().email('Merci de saisir une adresse valide.').required('Ce champs est requis.'),
         phoneNumber: yup.string(),
         role: yup.string(),
@@ -48,39 +44,17 @@ const EditUserForm = ({ user = defaultUser, setUser, onSubmit }: EditUserFormPro
         mode: 'onTouched',
     });
 
-    const handleSubmit_OLD = useCallback(async (values: EditUserFormInputs) => {
-        setSaving(true);
-        setErrorCode(null);
+    const handleSubmitEditUserForm = (values: EditUserFormInputs) => {
+        const { number } = phoneNumberValues ?? { number: '' };
+        onSubmit({
+            ...values,
+            phoneNumber: number as string,
+            disabled: false,
+            emailVerified: false,
+        });
+    };
 
-        try {
-            if (user) {
-                const userDataToUpdate = {
-                    ...user,
-                    ...values,
-                    phone_number: phoneNumberValues.number,
-                };
-                // await updateUser(userDataToUpdate);
-                setUser(userDataToUpdate);
-            } else {
-                const response = await createUser({
-                    ...values,
-                    phone_number: phoneNumberValues.number,
-                });
-                // router.push(`edit/${ response._id }`);
-            }
-            setSaving(false);
-        } catch (error) {
-            setSaving(false);
-            if (error.response && error.response.data && error.response.data.code) {
-                setErrorCode(error.response.data.code);
-                return;
-            }
-            console.error(error);
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [ user, setSaving, setErrorCode, router, setUser, phoneNumberValues ]);
-
-    const onChangePhoneNumber = (values) => {
+    const onChangePhoneNumber = (values: PhoneNumber | null) => {
         setPhoneNumberValues(values);
     };
 
@@ -88,7 +62,7 @@ const EditUserForm = ({ user = defaultUser, setUser, onSubmit }: EditUserFormPro
         <>
             <form
                 className='text-sm'
-                onSubmit={ handleSubmit(onSubmit) }
+                onSubmit={ handleSubmit(handleSubmitEditUserForm) }
             >
                 <TextField
                     name='displayName'

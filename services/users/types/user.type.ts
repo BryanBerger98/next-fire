@@ -5,18 +5,21 @@ export type User = {
 	phoneNumber?: string;
 	displayName?: string;
 	photoURL?: string;
-	role: string;
+	role: 'admin' | 'user';
 	disabled: boolean;
-	createdAt: Date;
-	updatedAt: Date;
+	createdAt: Date | {
+		_nanoseconds: number;
+		_seconds: number;
+	};
+	updatedAt: Date | null;
 };
 
 export type CreateUserDTO = {
 	email: string;
-	emailVerified?: boolean;
+	emailVerified: boolean;
 	phoneNumber?: string;
 	displayName?: string;
 	photoURL?: string;
-	role?: string;
+	role: 'admin' | 'user';
 	disabled: boolean;
 };

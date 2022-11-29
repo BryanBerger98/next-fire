@@ -1,9 +1,10 @@
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { CurrentUser } from '../services/auth/types/current-user.type';
 import { auth } from '../utils/firebase';
 
 type AuthContextValue = {
-	currentUser: FirebaseUser | null;
+	currentUser: CurrentUser | null;
 	loading: boolean;
 };
 
@@ -30,7 +31,7 @@ type AuthContextProviderProperties = {
 
 const AuthContextProvider = ({ children }: AuthContextProviderProperties) => {
 
-    const [ currentUser, setCurrentUser ] = useState<FirebaseUser | null>(null);
+    const [ currentUser, setCurrentUser ] = useState<CurrentUser | null>(null);
     const [ loading, setLoading ] = useState<boolean>(true);
 
     useEffect(() => {

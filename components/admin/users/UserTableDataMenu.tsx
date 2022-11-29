@@ -38,12 +38,12 @@ const UserTableDataMenu = ({ user, currentUser }: UserTableDataMenuProperties) =
 
     return (
         <>
-            <DropdownMenu>
-                {/* <div className="p-1">
+            <DropdownMenu name={ null }>
+                <div className="p-1">
                     <DropdownItem
                         icon={ <FiEdit /> }
                         name='Modifier'
-                        onClick={ () => router.push(`/admin/users/edit/${ user._id }`) }
+                        onClick={ () => router.push(`/admin/users/edit/${ user.uid }`) }
                     />
                     { user && !user.disabled &&
 						<>
@@ -68,8 +68,8 @@ const UserTableDataMenu = ({ user, currentUser }: UserTableDataMenuProperties) =
                         name='Débloquer le compte'
                         onClick={ () => setIsSwitchDisableUserModalOpen(true) }
                         variant='warning'
-                    /> }
-                </div> */}
+                                               /> }
+                </div>
                 {
                     currentUser && currentUser.uid !== user.uid &&
 					<div className="p-1">

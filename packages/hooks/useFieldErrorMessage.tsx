@@ -40,6 +40,15 @@ const useFieldErrorMesssage = <TFormValues extends Record<string, unknown>>({ er
     const errorMessage = errors && errors[ name as string ] && errors[ name as string ].message;
     const hasError = !!( errors && errorMessage );
 
+    const mergedInputErrorStyle = {
+        className: `ring-inset ring-2 ring-danger-light-default/50 dark:ring-danger-dark-default/50 border-danger-light-default dark:border-danger-dark-default ${ inputErrorStyle?.className ?? '' }`,
+        style: { ...inputErrorStyle?.style ?? {} },
+    };
+
+    const mergedLabelErrorStyle = {
+        className: `${ labelErrorStyle?.className ?? '' }`,
+        style: { ...labelErrorStyle?.style ?? {} },
+    };
 
     const FieldErrorMessage = ({ message = errorMessage, messageStyle = defaultMessageStyle, iconOnly = defaultIconOnly }: FieldErrorMessageProperties) => {
         const mergedMessageStyle = messageStyle ? {
@@ -67,8 +76,8 @@ const useFieldErrorMesssage = <TFormValues extends Record<string, unknown>>({ er
     return {
         hasError,
         FieldErrorMessage,
-        inputErrorStyle: hasError && inputErrorStyle ? inputErrorStyle : null,
-        labelErrorStyle: hasError && labelErrorStyle ? labelErrorStyle : null,
+        inputErrorStyle: hasError ? mergedInputErrorStyle : null,
+        labelErrorStyle: hasError ? mergedLabelErrorStyle : null,
     };
 };
 

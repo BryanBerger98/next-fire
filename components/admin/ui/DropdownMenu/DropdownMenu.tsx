@@ -11,7 +11,7 @@ export type DropdownUIOptions = {
 export type DropdownMenuProperties = {
 	children?: ReactNode;
 	icon?: ReactNode;
-	name?: string;
+	name?: string | null;
 	variant?: DropdownVariant;
 	uiOptions?: DropdownUIOptions;
 };

@@ -13,7 +13,7 @@ const ButtonWithLoader = ({
     variant = defaultVariant,
     type = defaultType,
     onClick,
-    disabled = false, 
+    disabled = false,
     uiOptions = defaultUIOptions,
     saving = false,
     loaderOrientation = 'right',
@@ -43,7 +43,8 @@ const ButtonWithLoader = ({
 
     useEffect(() => {
         triggerLoader();
-    }, [ saving, triggerLoader ]);
+    	// eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ saving ]);
 
     return(
         <div className="relative w-fit">

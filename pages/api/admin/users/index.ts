@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { verifyAuthentication } from '../../../../services/auth/auth.api.service';
-import { getUsers } from '../../../../services/users/users.api.service';
+import { createUser, getUsers } from '../../../../services/users/users.api.service';
 
 const usersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
@@ -15,8 +15,8 @@ const usersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         }
 
         if (req.method === 'POST') {
-            console.log(req.body);
-            return res.status(200).json({ success: 'ok' });
+            const user = await createUser(req.body);
+            return res.status(200).json(user);
         }
 
     } catch (error) {

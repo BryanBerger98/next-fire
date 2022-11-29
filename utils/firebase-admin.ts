@@ -18,5 +18,6 @@ try {
 export default admin;
 
 const auth = admin.auth();
+const db = admin.firestore();
 
-export { auth };
+export { auth, db };

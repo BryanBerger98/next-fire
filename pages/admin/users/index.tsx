@@ -5,9 +5,12 @@ import Button from '../../../components/admin/ui/Button/Button';
 import PageTitle from '../../../components/admin/ui/PageTitle';
 import UsersTable from '../../../components/admin/users/UsersTable';
 import { useCsrfContext } from '../../../context/csrf.context';
-import useUsersClientService from '../../../services/users/users.client.service';
+import { wrapper } from '../../../store';
 import { GetServerSidePropsContextWithCsrf } from '../../../types/ssr.types';
 import csrf from '../../../utils/csrf';
+import { connect } from 'react-redux';
+import { selectUsersState } from '../../../store/users.slice';
+import { GetServerSideProps, GetServerSidePropsContext, NextPageContext } from 'next';
 
 type UsersPageProperties = {
 	csrfToken: string;
@@ -16,9 +19,9 @@ type UsersPageProperties = {
 const UsersPage = ({ csrfToken }: UsersPageProperties) => {
 
     const [ searchString, setSearchString ] = useState('');
-    // const { usersTotal } = useUsersContext();
     const { dispatchCsrfToken } = useCsrfContext();
     const router = useRouter();
+
 
     useEffect(() => {
         dispatchCsrfToken(csrfToken);
@@ -31,13 +34,6 @@ const UsersPage = ({ csrfToken }: UsersPageProperties) => {
     const onCreateNewUser = () => {
         router.push('/admin/users/edit');
     };
-
-    const { getUsers } = useUsersClientService();
-
-    useEffect(() => {
-        getUsers()
-            .then(console.log);
-    }, []);
 
     return (
         <div className="container mx-auto my-10 px-5">
@@ -63,12 +59,12 @@ const UsersPage = ({ csrfToken }: UsersPageProperties) => {
     );
 };
 
-export default UsersPage;
+export default connect(selectUsersState)(UsersPage);
 
-const getServerSideProps = async ({ req, res }: GetServerSidePropsContextWithCsrf ) => {
+const getServerSideProps = wrapper.getServerSideProps(store => async ({ req, res, preview }: GetServerSidePropsContextWithCsrf) => {
     await csrf(req, res);
 
     return { props: { csrfToken: req.csrfToken() } };
-};
+});
 
 export { getServerSideProps };

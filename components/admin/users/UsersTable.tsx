@@ -1,5 +1,5 @@
 import { FiCheckCircle, FiLock, FiRotateCw, FiUser } from 'react-icons/fi';
-// import { getStringSlashedDateFromDate } from '../../utils/dates';
+import { getStringSlashedDateFromDate } from '../../../utils/dates';
 import { useState, Fragment, useCallback, useEffect } from 'react';
 import UserTableDataMenu from './UserTableDataMenu';
 // import { useUsersContext } from '../../store/usersContext';
@@ -10,7 +10,7 @@ import { string } from 'prop-types';
 import { useRouter } from 'next/router';
 import { format } from 'libphonenumber-js';
 import { useAuthContext } from '../../../context/auth.context';
-import useUsersService from '../../../services/users/users.client.service';
+import useUsersClientService from '../../../services/users/users.client.service';
 import { User } from '../../../services/users/types/user.type';
 import { CurrentUser } from '../../../services/auth/types/current-user.type';
 
@@ -31,7 +31,7 @@ const UsersTable = ({ searchString }: UserTableProperties) => {
     const router = useRouter();
     // const { usersList, usersTotal, dispatchUsersData } = useUsersContext();
     const [ usersList, setUsersList ] = useState<User[]>([]);
-    const { getUsers } = useUsersService();
+    const { getUsers } = useUsersClientService();
 
     const LOCAL_USERS_TABLE_CONFIG = localStorage.getItem('usersTableConfig') ? JSON.parse(localStorage.getItem('usersTableConfig') as string) : null;
 
@@ -62,7 +62,7 @@ const UsersTable = ({ searchString }: UserTableProperties) => {
             align: 'left',
         },
         {
-            title: 'Télépohne',
+            title: 'Téléphone',
             name: 'phone_number',
             sortable: true,
             fontStyle: 'semibold',
@@ -103,6 +103,7 @@ const UsersTable = ({ searchString }: UserTableProperties) => {
         //     .finally(() => setDataLoading(false));
         getUsers()
             .then((data) => {
+                console.log(data);
                 setUsersList(data.users);
             })
             .catch(console.error)
@@ -135,7 +136,7 @@ const UsersTable = ({ searchString }: UserTableProperties) => {
         getUsers()
             .then((usersData) => {
                 console.log('USERS', usersData);
-                setUsersList([]);
+                setUsersList(usersData.users);
             })
             .catch(console.error)
             .finally(() => setDataLoading(false));
@@ -169,15 +170,16 @@ const UsersTable = ({ searchString }: UserTableProperties) => {
                                 <span className="flex items-center gap-2">
                                     <div className="h-10 w-10 rounded-full drop-shadow bg-primary-light-default dark:bg-primary-dark-default text-light-50 flex justify-center items-center text-lg overflow-hidden relative">
                                         {
-                                            user.photoURL && user.photoURL !== ''
-                                                ? <Image
+                                            user.photoURL && user.photoURL !== '' ?
+                                                <Image
                                                     className="rounded-full"
                                                     src={ `/${ user.photoURL }` }
                                                     alt={ `${ user.displayName ? user.displayName : user.uid } profile photo` }
                                                     height={ 40 }
                                                     width={ 40 }
                                                 />
-                                                : <FiUser />
+                                                :
+                                                <FiUser />
                                         }
                                         {
                                             user.disabled &&
@@ -198,13 +200,18 @@ const UsersTable = ({ searchString }: UserTableProperties) => {
                             >
                                 <span className="flex items-center gap-1">
                                     <span>{user.email}</span>
-                                    {user.emailVerified ? <FiCheckCircle
-                                        title='Compte vérifié'
-                                        className="text-success-light-default dark:text-success-dark-default"
-                                    /> : <FiRotateCw
-                                        title="En attente de vérification"
-                                        className="text-warning-light-default dark:text-warning-dark-default"
-                                                               />}
+                                    {
+                                        user.emailVerified ?
+                                            <FiCheckCircle
+                                                title='Compte vérifié'
+                                                className="text-success-light-default dark:text-success-dark-default"
+                                            />
+                                            :
+                                            <FiRotateCw
+                                                title="En attente de vérification"
+                                                className="text-warning-light-default dark:text-warning-dark-default"
+                                            />
+                                    }
                                 </span>
                             </td>
                             <td
@@ -217,17 +224,17 @@ const UsersTable = ({ searchString }: UserTableProperties) => {
                                 className="py-2 border-b-[0.5px] border-light-300 dark:border-light-700 cursor-pointer"
                                 onClick={ () => onEditUser(user.uid) }
                             >
-                                {/* {user.role === 'admin' ? 'Administrateur' : user.role === 'user' ? 'Utilisateur' : ''} */}
-								Administrateur
+                                {user.role === 'admin' ? 'Administrateur' : user.role === 'user' ? 'Utilisateur' : ''}
                             </td>
                             <td
                                 className="py-2 border-b-[0.5px] border-light-300 dark:border-light-700 cursor-pointer"
                                 onClick={ () => onEditUser(user.uid) }
                             >
-                                {/* {user.created_on && getStringSlashedDateFromDate(new Date(user.created_on), 'fr')} */}
+                                {user.createdAt && getStringSlashedDateFromDate(user.createdAt instanceof Date ? user.createdAt : user.createdAt._seconds * 1000, 'fr')}
                             </td>
                             <td className="py-2 border-b-[0.5px] border-light-300 dark:border-light-700 text-center">
                                 <UserTableDataMenu
+
                                     user={ user }
                                     currentUser={ currentUser as CurrentUser }
                                 />

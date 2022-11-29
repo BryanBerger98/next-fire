@@ -59,16 +59,11 @@ const PhoneField = <TFormValues extends Record<string, unknown>>({ name, label, 
 
     const handleChange = (event: BaseSyntheticEvent) => {
         const { value } = event.target;
-
-        if (!value) {
-            // return onChange(event);
-        }
         if (value) {
             const asYouType = new AsYouType(countrySelectValue);
             const input = asYouType.input(value);
             event.target.value = input;
-            // onChange(event);
-            onChangePhoneNumber(asYouType.getNumber());
+            onChangePhoneNumber(asYouType.getNumber() ?? null);
         }
     };
 
